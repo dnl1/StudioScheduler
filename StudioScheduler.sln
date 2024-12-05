@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35521.163 d17.12
+VisualStudioVersion = 17.12.35521.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudioScheduler", "StudioScheduler\StudioScheduler.csproj", "{E6B6ACF5-3B5A-4536-8D1F-EF721291306E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudioScheduler.Tests", "StudioScheduler.Tests\StudioScheduler.Tests.csproj", "{7700AB39-08D9-4F87-89B9-D5B55BAF80B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{E6B6ACF5-3B5A-4536-8D1F-EF721291306E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6B6ACF5-3B5A-4536-8D1F-EF721291306E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6B6ACF5-3B5A-4536-8D1F-EF721291306E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7700AB39-08D9-4F87-89B9-D5B55BAF80B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7700AB39-08D9-4F87-89B9-D5B55BAF80B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7700AB39-08D9-4F87-89B9-D5B55BAF80B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7700AB39-08D9-4F87-89B9-D5B55BAF80B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

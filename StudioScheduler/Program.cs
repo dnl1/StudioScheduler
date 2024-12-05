@@ -2,8 +2,9 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using StudioScheduler.Data;
+using StudioScheduler.Interfaces;
+using StudioScheduler.Services;
 using StudioScheduler.Validators;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,8 @@ builder.Services.AddValidatorsFromAssemblyContaining<SchedulerValidator>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<ISchedulerService, SchedulerService>();
 
 var app = builder.Build();
 
