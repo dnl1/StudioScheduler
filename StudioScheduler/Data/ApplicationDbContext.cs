@@ -38,5 +38,37 @@ namespace StudioScheduler.Data
                 .WithOne(s => s.Room)
                 .HasForeignKey(s => s.RoomID);
         }
+
+        public override int SaveChanges()
+        {
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                // Process only entities being added or modified
+                if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                {
+                    // Loop through all properties
+                    foreach (var property in entry.Properties)
+                    {
+                        if (property.Metadata.ClrType == typeof(DateTime))
+                        {
+                            // Ensure DateTime is UTC
+                            var originalValue = (DateTime)property.CurrentValue!;
+                            property.CurrentValue = DateTime.SpecifyKind(originalValue, DateTimeKind.Utc);
+                        }
+                        else if (property.Metadata.ClrType == typeof(DateTime?))
+                        {
+                            // Handle nullable DateTime
+                            var originalValue = (DateTime?)property.CurrentValue;
+                            if (originalValue.HasValue)
+                            {
+                                property.CurrentValue = DateTime.SpecifyKind(originalValue.Value, DateTimeKind.Utc);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return base.SaveChanges();
+        }
     }
 }

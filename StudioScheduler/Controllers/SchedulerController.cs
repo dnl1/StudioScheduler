@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using StudioScheduler.Data;
 using StudioScheduler.Dtos;
+using StudioScheduler.Extensions;
 using StudioScheduler.Models;
 
 namespace StudioScheduler.Controllers
@@ -11,10 +12,12 @@ namespace StudioScheduler.Controllers
     public class SchedulerController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public SchedulerController(ApplicationDbContext context)
+        public SchedulerController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: api/Scheduler
@@ -47,6 +50,59 @@ namespace StudioScheduler.Controllers
                    .ToListAsync();
 
             return Ok(schedules);
+        }
+
+        [HttpGet("slots")]
+        public async Task<IActionResult> GetScheduleSlots([FromQuery] DateTime weekStart)
+        {
+            weekStart = DateTime.SpecifyKind(weekStart, DateTimeKind.Utc);
+
+            var firstHour = _configuration.GetValue<int>("FirstHour");
+            var lastHour = _configuration.GetValue<int>("LastHour");
+
+            // Calculate the week range
+            var (startOfWeek, endOfWeek) = weekStart.GetWeekRange();
+
+            // Query the database for reservations within the week range
+            var reservations = await _context.Schedules
+                .Where(s => s.StartDate >= startOfWeek && s.EndDate <= endOfWeek)
+                .ToListAsync();
+
+            // Create a list to hold the results
+            var results = new List<object>();
+
+            // Generate slots for each day in the week
+            for (var date = startOfWeek; date <= endOfWeek; date = date.AddDays(1))
+            {
+                var dailySlots = date.GenerateHourlySlots(firstHour, lastHour);
+
+                var slotsWithStatus = dailySlots.Select(slot => new
+                {
+                    time = slot.ToString("HH:mm"),
+                    status = GetSlotStatus(slot, reservations)
+                });
+
+                results.Add(new
+                {
+                    date = date.ToString("yyyy-MM-dd"),
+                    slots = slotsWithStatus
+                });
+            }
+
+            return Ok(results);
+        }
+
+        private string GetSlotStatus(DateTime slot, List<Scheduler> reservations)
+        {
+            foreach (var reservation in reservations)
+            {
+                if (slot >= reservation.StartDate && slot < reservation.EndDate)
+                {
+                    return "unavailable";
+                }
+            }
+
+            return "available";
         }
 
         // GET: api/Scheduler/{id}
