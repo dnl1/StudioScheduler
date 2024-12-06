@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using StudioScheduler.Data;
 using StudioScheduler.Models;
+using StudioScheduler.Requests;
 
 namespace StudioScheduler.Validators
 {
-    public class SchedulerValidator : AbstractValidator<Scheduler>
+    public class SchedulerValidator : AbstractValidator<ScheduleRequest>
     {
         private readonly ApplicationDbContext _context;
 
@@ -15,30 +16,30 @@ namespace StudioScheduler.Validators
 
             // Validate BandName
             RuleFor(s => s.BandName)
-                .NotEmpty().WithMessage("BandName is required.")
-                .MaximumLength(100).WithMessage("BandName cannot exceed 100 characters.");
+                .NotEmpty().WithMessage("O nome da banda é obrigatório.")
+                .MaximumLength(100).WithMessage("O nome da banda não pode exceder 100 caracteres.");
 
-            // Validate ContactName
+            // Valida o nome do contato
             RuleFor(s => s.ContactName)
-                .NotEmpty().WithMessage("ContactName is required.")
-                .MaximumLength(50).WithMessage("ContactName cannot exceed 50 characters.");
+                .NotEmpty().WithMessage("O nome do contato é obrigatório.")
+                .MaximumLength(50).WithMessage("O nome do contato não pode exceder 50 caracteres.");
 
-            // Validate MobileNumber
+            // Valida o número de telefone
             RuleFor(s => s.MobileNumber)
-                .NotEmpty().WithMessage("MobileNumber is required.")
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("MobileNumber must be a valid international phone number.");
+                .NotEmpty().WithMessage("O número de telefone é obrigatório.")
+                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("O número de telefone deve ser um número internacional válido.");
 
-            // Validate StartDate and EndDate
+            // Valida a StartDate e a EndDate
             RuleFor(s => s.StartDate)
-                .LessThan(s => s.EndDate).WithMessage("StartDate must be earlier than EndDate.");
+                .LessThanOrEqualTo(s => s.EndDate).WithMessage("A data de início deve ser anterior à data de término.");
 
-            // Validate Room booking overlap (custom logic can be injected here)
+            // Valida sobreposição de agendamentos (lógica customizada pode ser injetada aqui)
             RuleFor(s => s)
                 .MustAsync(async (schedule, cancellation) => await NoOverlappingSchedules(schedule))
-                .WithMessage("The room is already booked during the specified time.");
+                .WithMessage("A sala já está reservada para o horário especificado.");
         }
 
-        private async Task<bool> NoOverlappingSchedules(Scheduler schedule)
+        private async Task<bool> NoOverlappingSchedules(ScheduleRequest schedule)
         {
             // Query the database for overlapping schedules
             var hasOverlap = await _context.Schedules.AnyAsync(existingSchedule =>

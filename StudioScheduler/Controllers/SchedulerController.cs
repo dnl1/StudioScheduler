@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StudioScheduler.Data;
-using StudioScheduler.Dtos;
-using StudioScheduler.Extensions;
 using StudioScheduler.Interfaces;
-using StudioScheduler.Models;
+using StudioScheduler.Mappers;
+using StudioScheduler.Requests;
 
 namespace StudioScheduler.Controllers
 {
@@ -49,16 +46,18 @@ namespace StudioScheduler.Controllers
         // POST: api/Scheduler
         // POST: api/Scheduler
         [HttpPost]
-        public async Task<IActionResult> CreateSchedule([FromBody] Scheduler schedule)
+        public async Task<IActionResult> CreateSchedule([FromBody] ScheduleRequest schedule)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = await _schedulerService.Create(schedule);
+            var model = schedule.ToModel();
+
+            var response = await _schedulerService.Create(model);
 
             if (response.IsSuccess)
             {
-                return CreatedAtAction(nameof(GetScheduleById), new { id = schedule.ScheduleID }, schedule);
+                return CreatedAtAction(nameof(GetScheduleById), new { id = model.ScheduleID }, schedule);
             }
 
             return UnprocessableEntity(response.Message);
@@ -66,7 +65,7 @@ namespace StudioScheduler.Controllers
 
         // PUT: api/Scheduler/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSchedule(int id, [FromBody] Scheduler schedule)
+        public async Task<IActionResult> UpdateSchedule(int id, [FromBody] ScheduleRequest schedule)
         {
             if (id != schedule.ScheduleID)
                 return BadRequest();
@@ -74,7 +73,10 @@ namespace StudioScheduler.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = await _schedulerService.Update(id, schedule);
+            schedule.ScheduleID = id;
+            var model = schedule.ToModel();
+
+            var response = await _schedulerService.Update(id, model);
 
             if (response.IsSuccess)
             {
