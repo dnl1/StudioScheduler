@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using StudioScheduler;
 using StudioScheduler.Data;
 using StudioScheduler.Interfaces;
 using StudioScheduler.Services;
@@ -25,6 +26,14 @@ builder.Services.AddValidatorsFromAssemblyContaining<SchedulerValidator>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var appConfig = new AppConfig
+{
+    FirstHour = builder.Configuration.GetValue<int>("FirstHour"),
+    LastHour = builder.Configuration.GetValue<int>("LastHour"),
+};
+
+builder.Services.AddScoped<IAppConfig>((sp) => appConfig);
 
 builder.Services.AddScoped<ISchedulerService, SchedulerService>();
 
